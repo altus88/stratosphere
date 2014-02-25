@@ -76,8 +76,6 @@ public class PlanUnwrappingCoGroupOperator<I1, I2, OUT, K>
 
 		private static final long serialVersionUID = 1L;
 		
-		private final Reference<OUT> ref = new Reference<OUT>();
-		
 		private ReferenceWrappingCoGrouper(CoGroupFunction<I1, I2, OUT> wrapped) {
 			super(wrapped);
 		}
