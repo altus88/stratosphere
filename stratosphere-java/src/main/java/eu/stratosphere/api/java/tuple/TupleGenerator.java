@@ -63,7 +63,7 @@ public class TupleGenerator {
 		
 		// class declaration
 		w.println("@SuppressWarnings({\"restriction\"})");;
-		w.print("public final class " + className + "<");
+		w.print("public class " + className + "<");
 		for (int i = 1; i <= numFields; i++) {
 			if (i > 1) {
 				w.print(", ");

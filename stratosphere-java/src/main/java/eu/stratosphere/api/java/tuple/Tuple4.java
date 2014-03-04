@@ -23,8 +23,8 @@ package eu.stratosphere.api.java.tuple;
 
 import eu.stratosphere.util.StringUtils;
 
-@SuppressWarnings({ "restriction"})
-public final class Tuple4<T1, T2, T3, T4> extends Tuple {
+@SuppressWarnings({"restriction"})
+public class Tuple4<T1, T2, T3, T4> extends Tuple {
 
 	private static final long serialVersionUID = 1L;
 
