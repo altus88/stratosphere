@@ -103,8 +103,8 @@ public class TupleTypeInfo<T extends Tuple> extends TypeInformation<T> implement
 		for (int i = 0; i < logicalKeyFields.length; i++) {
 			int field = logicalKeyFields[i];
 			
-			if (field < 0 || field >= logicalKeyFields.length) {
-				throw new IllegalArgumentException("The field position " + field + " is out of range [0," + logicalKeyFields.length + ")");
+			if (field < 0 || field >= types.length) {
+				throw new IllegalArgumentException("The field position " + field + " is out of range [0," + types.length + ")");
 			}
 			if (types[field].isKeyType() && types[field] instanceof AtomicType) {
 				fieldComparators[i] = ((AtomicType<?>) types[field]).createComparator(orders[i]);
