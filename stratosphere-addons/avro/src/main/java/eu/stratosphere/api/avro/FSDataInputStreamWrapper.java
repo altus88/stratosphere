@@ -1,4 +1,4 @@
-package eu.stratosphere.api.java.record.io.avro;
+package eu.stratosphere.api.avro;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -9,18 +9,16 @@ import eu.stratosphere.core.fs.FSDataInputStream;
 
 
 /**
- * Code copy pasted from org.apache.avro.mapred.FSInput (which is Apache
- * licenced as well)
+ * Code copy pasted from org.apache.avro.mapred.FSInput (which is Apache licensed as well)
  * 
- * The wrapper keeps track of the position!
- * 
+ * The wrapper keeps track of the position in the data stream.
  */
 public class FSDataInputStreamWrapper implements Closeable, SeekableInput {
 	private final FSDataInputStream stream;
 	private final long len;
 	private long pos;
 
-	FSDataInputStreamWrapper(final FSDataInputStream stream, final int len) {
+	public FSDataInputStreamWrapper(final FSDataInputStream stream, final int len) {
 		this.stream = stream;
 		this.len = len;
 		this.pos = 0;

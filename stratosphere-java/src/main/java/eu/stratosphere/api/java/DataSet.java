@@ -161,6 +161,14 @@ public abstract class DataSet<T> {
 	public <R> CrossOperator.CrossOperatorSets<T, R> cross(DataSet<R> other) {
 		return new CrossOperator.CrossOperatorSets<T, R>(this, other);
 	}
+	
+	public <R> CrossOperator.CrossOperatorSets<T, R> crossWithTiny(DataSet<R> other) {
+		return new CrossOperator.CrossOperatorSets<T, R>(this, other);
+	}
+	
+	public <R> CrossOperator.CrossOperatorSets<T, R> crossWithHuge(DataSet<R> other) {
+		return new CrossOperator.CrossOperatorSets<T, R>(this, other);
+	}
 
 	// --------------------------------------------------------------------------------------------
 	//  Union
@@ -222,7 +230,7 @@ public abstract class DataSet<T> {
 		if (outputFormat == null)
 			throw new IllegalArgumentException("The output format must not be null.");
 		
-		outputFormat.setFilePath(filePath);
+		outputFormat.setOutputFilePath(filePath);
 		output(outputFormat);
 	}
 	

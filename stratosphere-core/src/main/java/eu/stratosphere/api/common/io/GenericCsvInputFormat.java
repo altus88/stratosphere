@@ -21,7 +21,6 @@ import com.google.common.primitives.Ints;
 
 import eu.stratosphere.core.fs.FileInputSplit;
 import eu.stratosphere.core.fs.Path;
-import eu.stratosphere.types.Value;
 import eu.stratosphere.types.parser.FieldParser;
 import eu.stratosphere.util.InstantiationUtil;
 
@@ -55,7 +54,9 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 		
 	private char fieldDelim = DEFAULT_FIELD_DELIMITER;
 	
-	private boolean lenient = false;
+	private boolean lenient;
+	
+	private boolean skipFirstLineAsHeader;
 	
 	
 	// --------------------------------------------------------------------------------------------
@@ -80,11 +81,11 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 		return this.fieldTypes.length;
 	}
 
-	public char getFieldDelim() {
+	public char getFieldDelimiter() {
 		return fieldDelim;
 	}
 
-	public void setFieldDelim(char fieldDelim) {
+	public void setFieldDelimiter(char fieldDelim) {
 		if (fieldDelim > Byte.MAX_VALUE)
 			throw new IllegalArgumentException("The field delimiter must be an ASCII character.");
 		
@@ -97,6 +98,14 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 
 	public void setLenient(boolean lenient) {
 		this.lenient = lenient;
+	}
+	
+	public boolean isSkippingFirstLineAsHeader() {
+		return skipFirstLineAsHeader;
+	}
+
+	public void setSkipFirstLineAsHeader(boolean skipFirstLine) {
+		this.skipFirstLineAsHeader = skipFirstLine;
 	}
 	
 	// --------------------------------------------------------------------------------------------
@@ -180,8 +189,7 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 			}
 		}
 
-		@SuppressWarnings("unchecked")
-		Class<? extends Value>[] denseTypeArray = (Class<? extends Value>[]) types.toArray(new Class[types.size()]);
+		Class<?>[] denseTypeArray = (Class<?>[]) types.toArray(new Class[types.size()]);
 		this.fieldTypes = denseTypeArray;
 	}
 
@@ -211,6 +219,11 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 			}
 		}
 		this.fieldParsers = parsers;
+		
+		// skip the first line, if we are at the beginning of a file and have the option set
+		if (this.skipFirstLineAsHeader && this.splitStart == 0) {
+			readLine(); // read and ignore
+		}
 	}
 	
 	protected boolean parseRecord(Object[] holders, byte[] bytes, int offset, int numBytes) throws ParseException {
@@ -254,8 +267,10 @@ public abstract class GenericCsvInputFormat<OT> extends DelimitedInputFormat<OT>
 				// skip field
 				startPos = skipFields(bytes, startPos, limit, fieldDelim);
 				if (startPos < 0) {
-					String lineAsString = new String(bytes, offset, numBytes);
-					throw new ParseException("Line could not be parsed: " + lineAsString);
+					if (!lenient) {
+						String lineAsString = new String(bytes, offset, numBytes);
+						throw new ParseException("Line could not be parsed: " + lineAsString);
+					}
 				}
 			}
 		}

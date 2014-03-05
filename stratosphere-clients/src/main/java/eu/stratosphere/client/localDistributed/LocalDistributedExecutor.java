@@ -85,7 +85,7 @@ public class LocalDistributedExecutor extends PlanExecutor {
 		}
 		
 		Configuration conf = NepheleMiniCluster.getMiniclusterDefaultConfig(
-				JOB_MANAGER_RPC_PORT, 6500, 7501, null, true);
+				JOB_MANAGER_RPC_PORT, 6500, 7501, null, true, true, false);
 		GlobalConfiguration.includeConfiguration(conf);
 			
 		// start job manager

@@ -98,13 +98,12 @@ public abstract class ExecutionEnvironment {
 		return new DataSource<String>(this, new TextInputFormat(new Path(filePath)), BasicTypeInfo.STRING_TYPE_INFO );
 	}
 	
-	public DataSet<String> readTextFile(String filePath, String charsetName, boolean skipInvalidLines) {
+	public DataSet<String> readTextFile(String filePath, String charsetName) {
 		if (filePath == null)
 			throw new IllegalArgumentException("The file path may not be null.");
 
 		TextInputFormat format = new TextInputFormat(new Path(filePath));
 		format.setCharsetName(charsetName);
-		format.setSkipInvalidLines(skipInvalidLines);
 		return new DataSource<String>(this, format, BasicTypeInfo.STRING_TYPE_INFO );
 	}
 	

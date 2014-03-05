@@ -16,8 +16,8 @@ package eu.stratosphere.api.java.record.io;
 import static org.junit.Assert.*;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import org.apache.log4j.Level;
 import org.junit.BeforeClass;
@@ -55,10 +55,10 @@ public class TextInputFormatTest {
 			tempFile.deleteOnExit();
 			tempFile.setWritable(true);
 			
-			PrintStream ps = new  PrintStream(tempFile);
-			ps.println(FIRST);
-			ps.println(SECOND);
-			ps.close();
+			FileWriter writer = new FileWriter(tempFile);
+			writer.append(FIRST).append('\n');
+			writer.append(SECOND).append('\n');
+			writer.close();
 			
 			TextInputFormat inputFormat = new TextInputFormat();
 			inputFormat.setFilePath(tempFile.toURI().toString());

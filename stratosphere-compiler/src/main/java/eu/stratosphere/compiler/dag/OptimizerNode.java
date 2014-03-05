@@ -51,7 +51,7 @@ public abstract class OptimizerNode implements Visitable<OptimizerNode>, Estimat
 	//                                      Members
 	// --------------------------------------------------------------------------------------------
 
-	private final Operator pactContract; // The contract (Reduce / Match / DataSource / ...)
+	private final Operator pactContract; // The operator (Reduce / Join / DataSource / ...)
 	
 	private List<String> broadcastConnectionNames = new ArrayList<String>(); // the broadcast inputs names of this node
 	
@@ -68,7 +68,7 @@ public abstract class OptimizerNode implements Visitable<OptimizerNode>, Estimat
 	protected Set<OptimizerNode> closedBranchingNodes; 	// stack of branching nodes which have already been closed
 	
 	protected List<OptimizerNode> hereJoinedBranchers;	// the branching nodes (node with multiple outputs)
-														// that both children share and that are at least partially joined
+														// that at least two children share and that are at least partially joined
 
 	// ---------------------------- Estimates and Annotations -------------------------------------
 	
@@ -221,6 +221,23 @@ public abstract class OptimizerNode implements Visitable<OptimizerNode>, Estimat
 	 * no matter if there have been more branches to different paths in the meantime.
 	 */
 	public abstract void computeUnclosedBranchStack();
+	
+	
+	protected List<UnclosedBranchDescriptor> computeUnclosedBranchStackForBroadcastInputs(List<UnclosedBranchDescriptor> branchesSoFar) {
+		// handle the data flow branching for the broadcast inputs
+		for (PactConnection broadcastInput : getBroadcastConnections()) {
+			OptimizerNode bcSource = broadcastInput.getSource();
+			addClosedBranches(bcSource.closedBranchingNodes);
+			
+			List<UnclosedBranchDescriptor> bcBranches = bcSource.getBranchesForParent(broadcastInput);
+			
+			ArrayList<UnclosedBranchDescriptor> mergedBranches = new ArrayList<UnclosedBranchDescriptor>();
+			mergeLists(branchesSoFar, bcBranches, mergedBranches);
+			branchesSoFar = mergedBranches.isEmpty() ? Collections.<UnclosedBranchDescriptor>emptyList() : mergedBranches;
+		}
+		
+		return branchesSoFar;
+	}
 
 	/**
 	 * Computes the plan alternatives for this node, an implicitly for all nodes that are children of
@@ -269,23 +286,17 @@ public abstract class OptimizerNode implements Visitable<OptimizerNode>, Estimat
 
 	@Override
 	public Iterator<OptimizerNode> getPredecessors() {
-		final Iterator<PactConnection> inputs = getIncomingConnections().iterator();
-		return new Iterator<OptimizerNode>() {
-			@Override
-			public boolean hasNext() {
-				return inputs.hasNext();
-			}
-
-			@Override
-			public OptimizerNode next() {
-				return inputs.next().getSource();
-			}
-
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+		List<OptimizerNode> allPredecessors = new ArrayList<OptimizerNode>();
+		
+		for (Iterator<PactConnection> inputs = getIncomingConnections().iterator(); inputs.hasNext(); ){
+			allPredecessors.add(inputs.next().getSource());
+		}
+		
+		for (PactConnection conn : getBroadcastConnections()) {
+			allPredecessors.add(conn.getSource());
+		}
+		
+		return allPredecessors.iterator();
 	}
 	
 	/**
@@ -649,13 +660,13 @@ public abstract class OptimizerNode implements Visitable<OptimizerNode>, Estimat
 		}
 		
 		// use the width to infer the cardinality (given size) and vice versa
-		if (hints.getAvgBytesPerOutputRecord() >= 1) {
+		if (hints.getAvgOutputRecordSize() >= 1) {
 			// the estimated number of rows based on size
 			if (this.estimatedNumRecords == -1 && this.estimatedOutputSize >= 0) {
-				this.estimatedNumRecords = (long) (this.estimatedOutputSize / hints.getAvgBytesPerOutputRecord());
+				this.estimatedNumRecords = (long) (this.estimatedOutputSize / hints.getAvgOutputRecordSize());
 			}
 			else if (this.estimatedOutputSize == -1 && this.estimatedNumRecords >= 0) {
-				this.estimatedOutputSize = (long) (this.estimatedNumRecords * hints.getAvgBytesPerOutputRecord());
+				this.estimatedOutputSize = (long) (this.estimatedNumRecords * hints.getAvgOutputRecordSize());
 			}
 		}
 	}
@@ -1216,9 +1227,13 @@ public abstract class OptimizerNode implements Visitable<OptimizerNode>, Estimat
 	}
 	
 	@Override
-	@SuppressWarnings("unchecked")
 	public Iterator<DumpableConnection<OptimizerNode>> getDumpableInputs() {
-		return (Iterator<DumpableConnection<OptimizerNode>>) (Iterator<?>) getIncomingConnections().iterator();
+		List<DumpableConnection<OptimizerNode>> allInputs = new ArrayList<DumpableConnection<OptimizerNode>>();
+		
+		allInputs.addAll(getIncomingConnections());
+		allInputs.addAll(getBroadcastConnections());
+		
+		return allInputs.iterator();
 	}
 	
 	@Override

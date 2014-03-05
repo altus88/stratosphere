@@ -299,6 +299,9 @@ public class ReduceOperator extends GroupReduceOperatorBase<ReduceFunction> impl
 		 * @return The created operator
 		 */
 		public ReduceOperator build() {
+			if (name == null) {
+				name = udf.getUserCodeClass().getName();
+			}
 			return new ReduceOperator(this);
 		}
 	}

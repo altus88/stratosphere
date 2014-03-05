@@ -93,7 +93,7 @@ public class CsvInputFormatTest {
 		
 			final Configuration parameters = new Configuration();
 
-			format.setFieldDelim('|');
+			format.setFieldDelimiter('|');
 			format.setFieldTypes(StringValue.class, StringValue.class, StringValue.class);
 			
 			format.configure(parameters);
@@ -132,7 +132,7 @@ public class CsvInputFormatTest {
 			new CsvInputFormat.ConfigBuilder(null, parameters)
 				.field(StringValue.class, 0).field(StringValue.class, 1).field(StringValue.class, 2);
 			
-			format.setFieldDelim('|');
+			format.setFieldDelimiter('|');
 			
 			format.configure(parameters);
 			format.open(split);

@@ -4,12 +4,15 @@
 
 # Build Responsibilities
 # 1. Deploy to sonatype (old hadoop)
-# 2. Deploy to dopa (old hadoop)
-# 3. Nothing
-# 4. deploy to sonatype (yarn hadoop)
-# 5. deploy to dopa (yarn hadoop)
-# 6. Nothing
+# 2. Nothing
+# 3. Deploy to s3 (old hadoop)
+# 4. deploy to sonatype (yarn hadoop) (this build will also generate specific poms for yarn hadoop)
+# 5. Nothing
+# 6. deploy to s3 (yarn hadoop)
 
+# Changes (since travis changed the id assignment)
+# switched 2. with 3.
+# switched 5. with 6.
 
 echo "install lifecylce mapping fake plugin"
 git clone https://github.com/mfriedenhagen/dummy-lifecycle-mapping-plugin.git
@@ -76,30 +79,31 @@ if [[ $TRAVIS_PULL_REQUEST == "false" ]] ; then
 	# Please be sure not to use Build 1 as it will always be the yarn build.
 	#
 
-	UBER_JAR=""
-	if [[ $TRAVIS_JOB_NUMBER == *5 ]] ; then 
+	YARN_ARCHIVE=""
+	if [[ $TRAVIS_JOB_NUMBER == *6 ]] ; then 
 		#generate yarn poms & build for yarn.
-		./tools/generate_specific_pom.sh $CURRENT_STRATOSPHERE_VERSION $CURRENT_STRATOSPHERE_VERSION_YARN pom.xml
-		mvn -B -DskipTests clean install
+		# it is not required to generate poms for this build.
+		#./tools/generate_specific_pom.sh $CURRENT_STRATOSPHERE_VERSION $CURRENT_STRATOSPHERE_VERSION_YARN pom.xml
+		#mvn -B -DskipTests clean install
 		CURRENT_STRATOSPHERE_VERSION=$CURRENT_STRATOSPHERE_VERSION_YARN
-		UBER_JAR="stratosphere-dist/target/*yarn*.jar"
+		YARN_ARCHIVE="stratosphere-dist/target/*yarn.tar.gz"
 	fi
-	if [[ $TRAVIS_JOB_NUMBER == *2 ]] || [[ $TRAVIS_JOB_NUMBER == *5 ]] ; then 
-		sudo apt-get install sshpass
-		cd stratosphere-dist
-		mvn -B -DskipTests -Pdebian-package package
-		cd ..
-		echo "Uploading build to dopa.dima.tu-berlin.de. Job Number: $TRAVIS_JOB_NUMBER"
+	if [[ $TRAVIS_JOB_NUMBER == *3 ]] || [[ $TRAVIS_JOB_NUMBER == *6 ]] ; then 
+	#	cd stratosphere-dist
+	#	mvn -B -DskipTests -Pdebian-package package
+	#	cd ..
+		echo "Uploading build to amazon s3. Job Number: $TRAVIS_JOB_NUMBER"
 		mkdir stratosphere
 		cp -r stratosphere-dist/target/stratosphere-dist-$CURRENT_STRATOSPHERE_VERSION-bin/stratosphere-$CURRENT_STRATOSPHERE_VERSION/* stratosphere/
 		tar -czf stratosphere-$CURRENT_STRATOSPHERE_VERSION.tgz stratosphere
 		
 		# upload the two in parallel
-		if [[ $TRAVIS_JOB_NUMBER == *5 ]] ; then
-			travis-artifacts upload --path $UBER_JAR  --target-path / 
+		if [[ $TRAVIS_JOB_NUMBER == *6 ]] ; then
+			# move to current dir
+			mv $YARN_ARCHIVE .
+			travis-artifacts upload --path *yarn.tar.gz --target-path / 
 		fi
 		travis-artifacts upload --path stratosphere-$CURRENT_STRATOSPHERE_VERSION.tgz   --target-path / 
-		#sshpass -p "$DOPA_PASS" scp -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -r stratosphere-$CURRENT_STRATOSPHERE_VERSION.tgz $UBER_JAR $DOPA_USER@dopa.dima.tu-berlin.de:bin/
 	fi
 
 fi # pull request check

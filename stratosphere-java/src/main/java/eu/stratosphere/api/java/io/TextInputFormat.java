@@ -27,7 +27,7 @@ public class TextInputFormat extends DelimitedInputFormat<String> {
 	
 	private String charsetName = "UTF-8";
 	
-	private boolean skipInvalidLines;
+//	private boolean skipInvalidLines;
 	
 	private transient Charset charset;
 
@@ -50,13 +50,13 @@ public class TextInputFormat extends DelimitedInputFormat<String> {
 		this.charsetName = charsetName;
 	}
 	
-	public boolean isSkipInvalidLines() {
-		return skipInvalidLines;
-	}
-	
-	public void setSkipInvalidLines(boolean skipInvalidLines) {
-		this.skipInvalidLines = skipInvalidLines;
-	}
+//	public boolean isSkipInvalidLines() {
+//		return skipInvalidLines;
+//	}
+//	
+//	public void setSkipInvalidLines(boolean skipInvalidLines) {
+//		this.skipInvalidLines = skipInvalidLines;
+//	}
 	
 	// --------------------------------------------------------------------------------------------
 
@@ -81,6 +81,6 @@ public class TextInputFormat extends DelimitedInputFormat<String> {
 	
 	@Override
 	public String toString() {
-		return "TextInputFormat (" + getFilePath() + ") - " + this.charsetName + (this.skipInvalidLines ? "(skipping invalid lines)" : "");
+		return "TextInputFormat (" + getFilePath() + ") - " + this.charsetName; // + (this.skipInvalidLines ? "(skipping invalid lines)" : "");
 	}
 }

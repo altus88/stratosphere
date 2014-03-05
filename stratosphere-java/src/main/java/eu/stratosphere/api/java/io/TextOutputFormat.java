@@ -85,6 +85,6 @@ public class TextOutputFormat<T> extends FileOutputFormat<T> {
 	
 	@Override
 	public String toString() {
-		return "TextOutputFormat (" + getFilePath() + ") - " + this.charsetName;
+		return "TextOutputFormat (" + getOutputFilePath() + ") - " + this.charsetName;
 	}
 }

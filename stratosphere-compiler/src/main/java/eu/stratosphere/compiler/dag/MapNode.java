@@ -16,7 +16,8 @@ package eu.stratosphere.compiler.dag;
 import java.util.Collections;
 import java.util.List;
 
-import eu.stratosphere.api.common.operators.SingleInputOperator;
+import eu.stratosphere.api.common.operators.base.MapOperatorBase;
+import eu.stratosphere.api.common.operators.base.PlainMapOperatorBase;
 import eu.stratosphere.compiler.DataStatistics;
 import eu.stratosphere.compiler.operators.MapDescriptor;
 import eu.stratosphere.compiler.operators.OperatorDescriptorSingle;
@@ -26,9 +27,18 @@ import eu.stratosphere.compiler.operators.OperatorDescriptorSingle;
  */
 public class MapNode extends SingleInputNode {
 	
+	/**
+	 * Creates a new MapNode for the given contract.
+	 * 
+	 * @param pactContract The map contract object.
+	 */
+	public MapNode(PlainMapOperatorBase<?> pactContract) {
+		super(pactContract);
+	}
 
-	public MapNode(SingleInputOperator<?> operator) {
-		super(operator);
+	@Override
+	public MapOperatorBase<?> getPactContract() {
+		return (MapOperatorBase<?>) super.getPactContract();
 	}
 
 	@Override
@@ -42,7 +52,8 @@ public class MapNode extends SingleInputNode {
 	}
 
 	/**
-	 * Computes the estimates for the Map operator. Map takes one value and transforms it into another value.
+	 * Computes the estimates for the Map operator. 
+	 * We assume that by default, Map takes one value and transforms it into another value.
 	 * The cardinality consequently stays the same.
 	 */
 	@Override

@@ -14,12 +14,14 @@
  **********************************************************************************************************************/
 package eu.stratosphere.test.broadcastvars;
 
-import eu.stratosphere.api.common.io.FileOutputFormat;
+import org.apache.log4j.Level;
+
 import eu.stratosphere.api.common.operators.util.UserCodeObjectWrapper;
 import eu.stratosphere.api.common.typeutils.TypeComparatorFactory;
 import eu.stratosphere.api.common.typeutils.TypeSerializerFactory;
 import eu.stratosphere.api.java.record.io.CsvInputFormat;
 import eu.stratosphere.configuration.Configuration;
+import eu.stratosphere.core.fs.Path;
 import eu.stratosphere.example.java.record.kmeans.KMeans.PointBuilder;
 import eu.stratosphere.example.java.record.kmeans.KMeans.PointOutFormat;
 import eu.stratosphere.example.java.record.kmeans.KMeans.RecomputeClusterCenter;
@@ -49,6 +51,7 @@ import eu.stratosphere.test.testdata.KMeansData;
 import eu.stratosphere.test.util.TestBase2;
 import eu.stratosphere.types.DoubleValue;
 import eu.stratosphere.types.IntValue;
+import eu.stratosphere.util.LogUtils;
 
 
 public class KMeansIterativeNepheleITCase extends TestBase2 {
@@ -61,6 +64,11 @@ public class KMeansIterativeNepheleITCase extends TestBase2 {
 	protected String clusterPath;
 	protected String resultPath;
 
+	
+	public KMeansIterativeNepheleITCase() {
+		LogUtils.initializeDefaultConsoleLogger(Level.ERROR);
+	}
+	
 	@Override
 	protected void preSubmit() throws Exception {
 		dataPath = createTempFile("datapoints.txt", KMeansData.DATAPOINTS);
@@ -134,8 +142,10 @@ public class KMeansIterativeNepheleITCase extends TestBase2 {
 			taskConfig.addInputToGroup(0);
 			taskConfig.setInputSerializer(serializer, 0);
 
-			taskConfig.setStubWrapper(new UserCodeObjectWrapper<PointOutFormat>(new PointOutFormat()));
-			taskConfig.setStubParameter(FileOutputFormat.FILE_PARAMETER_KEY, resultPath);
+			PointOutFormat outFormat = new PointOutFormat();
+			outFormat.setOutputFilePath(new Path(resultPath));
+			
+			taskConfig.setStubWrapper(new UserCodeObjectWrapper<PointOutFormat>(outFormat));
 		}
 
 		return output;

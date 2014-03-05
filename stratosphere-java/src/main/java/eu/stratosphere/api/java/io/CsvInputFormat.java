@@ -55,7 +55,7 @@ public class CsvInputFormat<OUT extends Tuple> extends GenericCsvInputFormat<OUT
 		super(filePath);
 		
 		setDelimiter(lineDelimiter);
-		setFieldDelim(fieldDelimiter);
+		setFieldDelimiter(fieldDelimiter);
 		
 		setFieldTypes(types);
 	}
@@ -106,7 +106,7 @@ public class CsvInputFormat<OUT extends Tuple> extends GenericCsvInputFormat<OUT
 	
 	@Override
 	public String toString() {
-		return "CSV Input (" + StringUtils.showControlCharacters(String.valueOf(getFieldDelim())) + ")";
+		return "CSV Input (" + StringUtils.showControlCharacters(String.valueOf(getFieldDelimiter())) + ")";
 	}
 	
 	// --------------------------------------------------------------------------------------------

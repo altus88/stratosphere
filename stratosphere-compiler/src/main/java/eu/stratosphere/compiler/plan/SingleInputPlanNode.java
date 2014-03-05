@@ -13,7 +13,9 @@
 
 package eu.stratosphere.compiler.plan;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import eu.stratosphere.api.common.operators.util.FieldList;
@@ -135,9 +137,11 @@ public class SingleInputPlanNode extends PlanNode {
 	public void accept(Visitor<PlanNode> visitor) {
 		if (visitor.preVisit(this)) {
 			this.input.getSource().accept(visitor);
-			for (Channel broadcastInput : this.broadcastInputs) {
+			
+			for (Channel broadcastInput : getBroadcastInputs()) {
 				broadcastInput.getSource().accept(visitor);
 			}
+			
 			visitor.postVisit(this);
 		}
 	}
@@ -145,25 +149,38 @@ public class SingleInputPlanNode extends PlanNode {
 
 	@Override
 	public Iterator<PlanNode> getPredecessors() {
-		return new Iterator<PlanNode>() {
-			private boolean hasLeft = true;
-			@Override
-			public boolean hasNext() {
-				return this.hasLeft;
+		if (getBroadcastInputs() == null || getBroadcastInputs().isEmpty()) {
+			return new Iterator<PlanNode>() {
+				private boolean hasLeft = true;
+				@Override
+				public boolean hasNext() {
+					return this.hasLeft;
+				}
+				@Override
+				public PlanNode next() {
+					if (this.hasLeft) {
+						this.hasLeft = false;
+						return SingleInputPlanNode.this.input.getSource();
+					} else 
+						throw new NoSuchElementException();
+				}
+				@Override
+				public void remove() {
+					throw new UnsupportedOperationException();
+				}
+			};
+		}
+		else {
+			List<PlanNode> preds = new ArrayList<PlanNode>();
+			
+			preds.add(input.getSource());
+			
+			for (Channel c : getBroadcastInputs()) {
+				preds.add(c.getSource());
 			}
-			@Override
-			public PlanNode next() {
-				if (this.hasLeft) {
-					this.hasLeft = false;
-					return SingleInputPlanNode.this.input.getSource();
-				} else 
-					throw new NoSuchElementException();
-			}
-			@Override
-			public void remove() {
-				throw new UnsupportedOperationException();
-			}
-		};
+			
+			return preds.iterator();
+		}
 	}
 
 
@@ -199,13 +216,24 @@ public class SingleInputPlanNode extends PlanNode {
 		SourceAndDamReport res = this.input.getSource().hasDamOnPathDownTo(source);
 		if (res == FOUND_SOURCE_AND_DAM) {
 			return FOUND_SOURCE_AND_DAM;
-		} else if (res == FOUND_SOURCE &&
-				(this.input.getLocalStrategy().dams() || this.input.getTempMode().breaksPipeline() ||
-					getDriverStrategy().firstDam() == DamBehavior.FULL_DAM))
-		{
-			return FOUND_SOURCE_AND_DAM;
-		} else {
-			return res;
+		}
+		else if (res == FOUND_SOURCE) {
+			return (this.input.getLocalStrategy().dams() || this.input.getTempMode().breaksPipeline() ||
+					getDriverStrategy().firstDam() == DamBehavior.FULL_DAM) ?
+				FOUND_SOURCE_AND_DAM : FOUND_SOURCE;
+		}
+		else {
+			// NOT_FOUND
+			// check the broadcast inputs
+			
+			for (NamedChannel nc : getBroadcastInputs()) {
+				SourceAndDamReport bcRes = nc.getSource().hasDamOnPathDownTo(source);
+				if (bcRes != NOT_FOUND) {
+					// broadcast inputs are always dams
+					return FOUND_SOURCE_AND_DAM;
+				}
+			}
+			return NOT_FOUND;
 		}
 	}
 	

@@ -13,6 +13,8 @@
 
 package eu.stratosphere.api.common.operators;
 
+import com.google.common.base.Preconditions;
+
 import eu.stratosphere.api.common.io.FileInputFormat;
 
 /**
@@ -33,6 +35,9 @@ public class FileDataSource extends GenericDataSource<FileInputFormat<?>> {
 	 */
 	public FileDataSource(FileInputFormat<?> f, String filePath, String name) {
 		super(f, name);
+		
+		Preconditions.checkNotNull(filePath, "The file path may not be null.");
+		
 		this.filePath = filePath;
 		f.setFilePath(filePath);
 	}
@@ -44,7 +49,7 @@ public class FileDataSource extends GenericDataSource<FileInputFormat<?>> {
 	 * @param filePath The file location. The file path must be a fully qualified URI, including the address schema.
 	 */
 	public FileDataSource(FileInputFormat<?> f, String filePath) {
-		this(f, filePath, "File " + filePath);
+		this(f, Preconditions.checkNotNull(filePath, "The file path may not be null."), "File " + filePath);
 	}
 	
 	/**
@@ -56,6 +61,9 @@ public class FileDataSource extends GenericDataSource<FileInputFormat<?>> {
 	 */
 	public FileDataSource(Class<? extends FileInputFormat<?>> f, String filePath, String name) {
 		super(f, name);
+		
+		Preconditions.checkNotNull(filePath, "The file path may not be null.");
+		
 		this.filePath = filePath;
 		FileInputFormat.configureFileFormat(this).filePath(filePath);
 	}
@@ -67,7 +75,7 @@ public class FileDataSource extends GenericDataSource<FileInputFormat<?>> {
 	 * @param filePath The file location. The file path must be a fully qualified URI, including the address schema.
 	 */
 	public FileDataSource(Class<? extends FileInputFormat<?>> f, String filePath) {
-		this(f, filePath, "File " + filePath);
+		this(f, Preconditions.checkNotNull(filePath, "The file path may not be null."), "File " + filePath);
 	}
 
 	// --------------------------------------------------------------------------------------------

@@ -185,7 +185,7 @@ public class DataSourceNode extends OptimizerNode {
 		candidate.updatePropertiesWithUniqueSets(getUniqueFields());
 		
 		final Costs costs = new Costs();
-		if (FileInputFormat.class.isAssignableFrom(getPactContract().getFormatWrapper().getUserCodeObject().getClass()) &&
+		if (FileInputFormat.class.isAssignableFrom(getPactContract().getFormatWrapper().getUserCodeClass()) &&
 				this.estimatedOutputSize >= 0)
 		{
 			estimator.addFileInputCost(this.estimatedOutputSize, costs);

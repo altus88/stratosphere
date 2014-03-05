@@ -41,8 +41,9 @@ public class GenericDataSource<T extends InputFormat<?, ?>> extends Operator {
 	public GenericDataSource(T format, String name) {
 		super(name);
 		
-		if (format == null)
+		if (format == null) {
 			throw new IllegalArgumentException("Input format may not be null.");
+		}
 		
 		this.formatWrapper = new UserCodeObjectWrapper<T>(format);
 	}

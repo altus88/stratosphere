@@ -95,7 +95,7 @@ public class CsvInputFormatTest {
 		
 			final CsvInputFormat<Tuple3<String, String, String>> format = new CsvInputFormat<Tuple3<String, String, String>>(PATH);
 			
-			format.setFieldDelim('|');
+			format.setFieldDelimiter('|');
 			format.setFieldTypes(String.class, String.class, String.class);
 			
 			format.configure(new Configuration());
@@ -138,7 +138,7 @@ public class CsvInputFormatTest {
 		
 			final CsvInputFormat<Tuple5<Integer, Integer, Integer, Integer, Integer>> format = new CsvInputFormat<Tuple5<Integer, Integer, Integer, Integer, Integer>>(PATH);
 			
-			format.setFieldDelim('|');
+			format.setFieldDelimiter('|');
 			format.setFieldTypes(Integer.class, Integer.class, Integer.class, Integer.class, Integer.class);
 			
 			format.configure(new Configuration());
@@ -179,7 +179,7 @@ public class CsvInputFormatTest {
 		
 			final CsvInputFormat<Tuple2<Integer, Integer>> format = new CsvInputFormat<Tuple2<Integer, Integer>>(PATH);
 			
-			format.setFieldDelim('|');
+			format.setFieldDelimiter('|');
 			format.setFieldTypes(Integer.class, Integer.class);
 			
 			format.configure(new Configuration());
@@ -215,7 +215,7 @@ public class CsvInputFormatTest {
 			
 			final CsvInputFormat<Tuple3<Integer, Integer, Integer>> format = new CsvInputFormat<Tuple3<Integer, Integer, Integer>>(PATH);
 			
-			format.setFieldDelim('|');
+			format.setFieldDelimiter('|');
 			format.setFieldTypes(Integer.class, null, null, Integer.class, null, null, null, Integer.class);
 			
 			format.configure(new Configuration());
@@ -252,7 +252,7 @@ public class CsvInputFormatTest {
 			
 			final CsvInputFormat<Tuple3<Integer, Integer, Integer>> format = new CsvInputFormat<Tuple3<Integer, Integer, Integer>>(PATH);
 			
-			format.setFieldDelim('|');
+			format.setFieldDelimiter('|');
 			
 			format.setFields(new int[] {0, 3, 7}, new Class<?>[] {Integer.class, Integer.class, Integer.class});
 			
@@ -288,7 +288,7 @@ public class CsvInputFormatTest {
 		try {
 			final CsvInputFormat<Tuple3<Integer, Integer, Integer>> format = new CsvInputFormat<Tuple3<Integer, Integer, Integer>>(PATH);
 			
-			format.setFieldDelim('|');
+			format.setFieldDelimiter('|');
 			
 			try {
 				format.setFields(new int[] {8, 1, 3}, new Class<?>[] {Integer.class, Integer.class, Integer.class});

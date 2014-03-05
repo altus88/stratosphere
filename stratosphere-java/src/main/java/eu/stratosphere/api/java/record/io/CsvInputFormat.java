@@ -56,7 +56,8 @@ public class CsvInputFormat extends GenericCsvInputFormat<Record> {
 	private transient Value[] parsedValues;
 	
 	private int[] targetPositions = new int[0];
-	
+
+	private boolean configured = false;
 	
 	// --------------------------------------------------------------------------------------------
 	//  Constructors and getters/setters for the configurable parameters
@@ -68,7 +69,7 @@ public class CsvInputFormat extends GenericCsvInputFormat<Record> {
 	
 	public CsvInputFormat(char fieldDelimiter) {
 		super();
-		setFieldDelim(fieldDelimiter);
+		setFieldDelimiter(fieldDelimiter);
 	}
 	
 	public CsvInputFormat(Class<? extends Value> ... fields) {
@@ -78,7 +79,7 @@ public class CsvInputFormat extends GenericCsvInputFormat<Record> {
 	
 	public CsvInputFormat(char fieldDelimiter, Class<? extends Value> ... fields) {
 		super();
-		setFieldDelim(fieldDelimiter);
+		setFieldDelimiter(fieldDelimiter);
 		setFieldTypes(fields);
 	}
 	
@@ -122,6 +123,10 @@ public class CsvInputFormat extends GenericCsvInputFormat<Record> {
 	@Override
 	public void configure(Configuration config) {
 		super.configure(config);
+
+		if (configured) {
+			return;
+		}
 		
 		final String fieldDelimStr = config.getString(FIELD_DELIMITER_PARAMETER, null);
 		if (fieldDelimStr != null) {
@@ -129,7 +134,7 @@ public class CsvInputFormat extends GenericCsvInputFormat<Record> {
 				throw new IllegalArgumentException("Invalid configuration for CsvInputFormat: " +
 						"Field delimiter must be a single character");
 			} else {
-				setFieldDelim(fieldDelimStr.charAt(0));
+				setFieldDelimiter(fieldDelimStr.charAt(0));
 			}
 		}
 		
@@ -203,15 +208,19 @@ public class CsvInputFormat extends GenericCsvInputFormat<Record> {
 		}
 		else {
 			// not configured via config parameters
-			this.targetPositions = new int[getNumberOfNonNullFields()];
-			for (int i = 0; i < this.targetPositions.length; i++) {
-				this.targetPositions[i] = i;
+			if (this.targetPositions.length == 0) {
+				this.targetPositions = new int[getNumberOfNonNullFields()];
+				for (int i = 0; i < this.targetPositions.length; i++) {
+					this.targetPositions[i] = i;
+				}
 			}
 		}
 		
 		if (getNumberOfNonNullFields() == 0) {
 			throw new IllegalConfigurationException("No fields configured in the CsvInputFormat.");
 		}
+
+		this.configured = true;
 	}
 	
 	
@@ -360,8 +369,8 @@ public class CsvInputFormat extends GenericCsvInputFormat<Record> {
 		}
 
 		@Override
-		public float getAvgBytesPerOutputRecord() {
-			float superWidth = super.getAvgBytesPerOutputRecord();
+		public float getAvgOutputRecordSize() {
+			float superWidth = super.getAvgOutputRecordSize();
 			if (superWidth > 0.0f || this.width <= 0.0f) {
 				return superWidth;
 			} else {
