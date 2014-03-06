@@ -13,9 +13,11 @@
 
 package eu.stratosphere.api.common;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import eu.stratosphere.api.common.operators.GenericDataSink;
 import eu.stratosphere.api.common.operators.Operator;
@@ -38,7 +40,7 @@ public class Plan implements Visitable<Operator> {
 	 * A collection of all sinks in the plan. Since the plan is traversed from the sinks to the sources, this
 	 * collection must contain all the sinks.
 	 */
-	protected final Collection<GenericDataSink> sinks;
+	protected final List<GenericDataSink> sinks = new ArrayList<GenericDataSink>(4);
 
 	/**
 	 * The name of the job.
@@ -83,7 +85,7 @@ public class Plan implements Visitable<Operator> {
 	 * @param defaultParallelism The default degree of parallelism for the job.
 	 */
 	public Plan(Collection<GenericDataSink> sinks, String jobName, int defaultParallelism) {
-		this.sinks = sinks;
+		this.sinks.addAll(sinks);
 		this.jobName = jobName;
 		this.defaultParallelism = defaultParallelism;
 	}
