@@ -14,7 +14,7 @@
 package eu.stratosphere.examples.scala.testing
 
 // Uncomment if you need to rebuild it for PackagedProgramEndToEndTest
-
+//
 //import eu.stratosphere.api.common.Program
 //import eu.stratosphere.api.common.ProgramDescription
 //
