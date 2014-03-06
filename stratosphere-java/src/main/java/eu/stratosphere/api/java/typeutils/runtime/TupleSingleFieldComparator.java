@@ -23,7 +23,7 @@ import eu.stratosphere.core.memory.DataOutputView;
 import eu.stratosphere.core.memory.MemorySegment;
 
 
-public final class TupleSingleFieldComparator<T extends Tuple, K extends Comparable<K>> extends TypeComparator<T> 
+public final class TupleSingleFieldComparator<T extends Tuple, K> extends TypeComparator<T> 
 	implements java.io.Serializable
 {
 

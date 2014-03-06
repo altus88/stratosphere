@@ -166,7 +166,7 @@ public class TupleTypeInfo<T extends Tuple> extends TypeInformation<T> implement
 	};
 	
 	
-	private static final <T extends Tuple, K extends Comparable<K>> TypeComparator<T> createSinglefieldComparator(int pos, boolean ascending, TypeInformation<?> info) {
+	private static final <T extends Tuple, K> TypeComparator<T> createSinglefieldComparator(int pos, boolean ascending, TypeInformation<?> info) {
 		if (!(info.isKeyType() && info instanceof AtomicType)) {
 			throw new IllegalArgumentException("The field at position " + pos + " (" + info + ") is no atomic key type.");
 		}
